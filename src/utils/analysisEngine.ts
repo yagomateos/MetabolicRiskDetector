@@ -80,32 +80,74 @@ export const performAdvancedAnalysis = (
 
   riskScore = cvRisk + metabolicSyndrome + hepaticRisk;
 
-  // Recomendaciones dinámicas
+  // Recomendaciones dinámicas específicas por valores
+  const urgentActions: string[] = [];
+  const mediumActions: string[] = [];
+  const longActions: string[] = [];
+
+  // Análisis de glucosa
   if (current.glucosa >= 140) {
-    recommendations.push('🎯 HbA1c + curva de glucosa URGENTE');
-    recommendations.push('📊 Monitoreo glucosa 2x/día');
+    urgentActions.push('🎯 Análisis de diabetes completo URGENTE');
+    urgentActions.push('📊 Control de azúcar 2 veces al día');
+    urgentActions.push('💊 Consulta con endocrinólogo inmediata');
   } else if (current.glucosa >= 100) {
-    recommendations.push('🎯 HbA1c para confirmar prediabetes');
-    recommendations.push('🥗 Dieta baja en carbohidratos');
+    mediumActions.push('🎯 Análisis de diabetes para confirmar prediabetes');
+    mediumActions.push('🥗 Dieta baja en azúcares y carbohidratos');
+    mediumActions.push('🏃 Ejercicio aeróbico 150 minutos por semana');
   } else if (current.glucosa >= 90) {
-    recommendations.push('📊 Monitoreo glucosa periódico');
+    longActions.push('📊 Control de azúcar periódico');
+    longActions.push('🥗 Mantener dieta equilibrada');
   }
 
+  // Análisis de leucocitos
   if (current.leucocitos > 10) {
-    recommendations.push('🔬 PCR, VSG, hemocultivo');
-    recommendations.push('🚨 Evaluación infección/inflamación');
+    urgentActions.push('🔬 Análisis de infección (PCR, VSG, hemocultivo)');
+    urgentActions.push('🚨 Evaluación de infección o inflamación');
+    urgentActions.push('🌡️ Control de temperatura corporal');
   } else if (current.leucocitos > 8.5) {
-    recommendations.push('🔬 PCR, VSG');
-    recommendations.push('🥗 Dieta antiinflamatoria');
+    mediumActions.push('🔬 Análisis de inflamación (PCR, VSG)');
+    mediumActions.push('🥗 Dieta antiinflamatoria');
+    mediumActions.push('🧘 Técnicas de manejo del estrés');
   }
 
+  // Análisis hepático
   if (current.alt > 80) {
-    recommendations.push('🛡️ Ecografía hepática urgente');
-    recommendations.push('🍺 Suspender alcohol completamente');
+    urgentActions.push('🛡️ Ecografía del hígado urgente');
+    urgentActions.push('🍺 Suspender alcohol completamente');
+    urgentActions.push('💊 Revisar medicamentos que dañan el hígado');
   } else if (current.alt > 56) {
-    recommendations.push('🛡️ Control hepático en 2-4 semanas');
-    recommendations.push('🚫 Reducir alcohol y medicamentos hepatotóxicos');
+    mediumActions.push('🛡️ Control del hígado en 2-4 semanas');
+    mediumActions.push('🚫 Reducir alcohol y medicamentos hepatotóxicos');
+    mediumActions.push('🥗 Dieta protectora del hígado');
   }
+
+  // Análisis de creatinina
+  if (current.creatinina > 1.2) {
+    urgentActions.push('🫘 Evaluación de los riñones urgente');
+    urgentActions.push('💧 Control estricto de hidratación');
+  } else if (current.creatinina > 1.0) {
+    mediumActions.push('🫘 Control de función renal en 1 mes');
+    mediumActions.push('💧 Mantener hidratación adecuada');
+  }
+
+  // Análisis de hemoglobina
+  if (current.hemoglobina < 12) {
+    mediumActions.push('🩸 Evaluación de anemia');
+    mediumActions.push('🍖 Suplementación de hierro si es necesario');
+  } else if (current.hemoglobina > 16) {
+    mediumActions.push('🩸 Evaluación de exceso de glóbulos rojos');
+    mediumActions.push('💧 Hidratación aumentada');
+  }
+
+  // Análisis de colesterol
+  if (current.colesterol > 240) {
+    mediumActions.push('❤️ Evaluación cardiovascular');
+    mediumActions.push('🥗 Dieta para bajar el colesterol');
+    mediumActions.push('🏃 Ejercicio cardiovascular');
+  }
+
+  // Combinar todas las recomendaciones
+  recommendations.push(...urgentActions, ...mediumActions, ...longActions);
 
   // Insights dinámicos
   if (current.leucocitos > 10) {

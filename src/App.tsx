@@ -24,6 +24,7 @@ function App() {
     extractedData,
     baseline,
     currentData,
+    patientInfo,
     setNewData,
     setUploadMode,
     handleFileUpload,
@@ -83,9 +84,9 @@ function App() {
   return (
     <div className="min-h-screen bg-gray-50">
       <Header
-        patientName="Santiago Mateos"
-        age={baseline.edad}
-        gender={baseline.sexo === 'M' ? 'Varón' : 'Mujer'}
+        patientName={patientInfo.nombre}
+        age={patientInfo.edad}
+        gender={patientInfo.sexo}
       />
 
       <Navigation

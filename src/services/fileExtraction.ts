@@ -42,7 +42,8 @@ const VALL_HEBRON_PATTERNS = {
   ],
   leucocitos: [
     /Leucòcits\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*x10E9\/L/i,
-    /Leucòcits-Sang.*?↑\s*(\d+\.?\d*)\s*\(T\)\s*x10E9\/L/i
+    /Leucòcits-Sang.*?↑\s*(\d+\.?\d*)\s*\(T\)\s*x10E9\/L/i,
+    /Leucòcits\s*\.?\s*(\d+\.?\d*)\s*x10E9\/L/i
   ],
   neutrofilos: [
     /Neutròfils %\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*%/i,
@@ -167,7 +168,14 @@ const VALL_HEBRON_PATTERNS = {
   ],
 
   // Fecha - múltiples formatos
-  fecha: /Recepció:\s*(\d+\/\d+\/\d+)/i
+  fecha: /Recepció:\s*(\d+\/\d+\/\d+)/i,
+
+  // Datos del paciente
+  nombre_paciente: /Pacient:\s*([A-ZÀÁÉÈÍÏÓÒÚÜÇ\s,]+?)(?:\s*Referència|\s*Petició|\s*Edat)/i,
+  edad_paciente: /Edat:\s*(\d+)\s*anys/i,
+  sexo_paciente: /Sexe:\s*([MF])/i,
+  nhc_paciente: /NHC:\s*(\d+)/i,
+  referencia_paciente: /Referència:\s*(\d+)/i
 };
 
 // Función para extraer texto real de PDF usando PDF.js
@@ -224,6 +232,10 @@ const extractRealData = (text: string): ExtractedData => {
           const value = parseFloat(match[1]);
           if (!isNaN(value) && value > 0) {
             extracted[key] = value;
+            // Log especial para leucocitos
+            if (key === 'leucocitos') {
+              console.log(`🩸 LEUCOCITOS EXTRAÍDOS: ${value}`);
+            }
           }
         }
         break; // Usar el primer patrón que coincida

@@ -36,25 +36,71 @@ export const GeneralView: React.FC<GeneralViewProps> = ({ analysis, historicalDa
 
       <Card>
         <CardHeader>
-          <CardTitle>Plan de Acción</CardTitle>
+          <CardTitle>Plan de Acción Personalizado</CardTitle>
         </CardHeader>
         <div className="space-y-3">
-          <div>
-            <h3 className="font-semibold text-xs text-red-600 mb-2">Urgente (1-2 semanas)</h3>
-            <ul className="space-y-1 text-xs">
-              <li>• Consulta endocrinólogo</li>
-              <li>• HbA1c + curva glucosa</li>
-              <li>• Ecografía abdominal</li>
-            </ul>
-          </div>
-          <div>
-            <h3 className="font-semibold text-xs text-yellow-600 mb-2">Medio plazo (1-3 meses)</h3>
-            <ul className="space-y-1 text-xs">
-              <li>• Panel vitamínico (B12, folato, D)</li>
-              <li>• Perfil lipídico completo</li>
-              <li>• Repetir analítica completa</li>
-            </ul>
-          </div>
+          {analysis.recommendations.length > 0 ? (
+            <>
+              {analysis.recommendations.filter(rec => 
+                rec.includes('URGENTE') || rec.includes('urgente') || 
+                rec.includes('inmediata') || rec.includes('infección') ||
+                rec.includes('hígado') || rec.includes('riñones')
+              ).length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-xs text-red-600 mb-2">🚨 Urgente (1-2 semanas)</h3>
+                  <ul className="space-y-1 text-xs">
+                    {analysis.recommendations.filter(rec => 
+                      rec.includes('URGENTE') || rec.includes('urgente') || 
+                      rec.includes('inmediata') || rec.includes('infección') ||
+                      rec.includes('hígado') || rec.includes('riñones')
+                    ).map((rec, idx) => (
+                      <li key={idx}>• {rec}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {analysis.recommendations.filter(rec => 
+                rec.includes('diabetes') || rec.includes('inflamación') || 
+                rec.includes('Control') || rec.includes('Evaluación') ||
+                rec.includes('Dieta') || rec.includes('Ejercicio')
+              ).length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-xs text-yellow-600 mb-2">⏰ Medio plazo (1-3 meses)</h3>
+                  <ul className="space-y-1 text-xs">
+                    {analysis.recommendations.filter(rec => 
+                      rec.includes('diabetes') || rec.includes('inflamación') || 
+                      rec.includes('Control') || rec.includes('Evaluación') ||
+                      rec.includes('Dieta') || rec.includes('Ejercicio')
+                    ).map((rec, idx) => (
+                      <li key={idx}>• {rec}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+              
+              {analysis.recommendations.filter(rec => 
+                rec.includes('azúcar') || rec.includes('Mantener') ||
+                rec.includes('periódico') || rec.includes('equilibrada')
+              ).length > 0 && (
+                <div>
+                  <h3 className="font-semibold text-xs text-green-600 mb-2">📅 Largo plazo (3-6 meses)</h3>
+                  <ul className="space-y-1 text-xs">
+                    {analysis.recommendations.filter(rec => 
+                      rec.includes('azúcar') || rec.includes('Mantener') ||
+                      rec.includes('periódico') || rec.includes('equilibrada')
+                    ).map((rec, idx) => (
+                      <li key={idx}>• {rec}</li>
+                    ))}
+                  </ul>
+                </div>
+              )}
+            </>
+          ) : (
+            <div className="text-center text-gray-500 text-sm">
+              <p>📊 Sube un PDF para obtener recomendaciones personalizadas</p>
+            </div>
+          )}
         </div>
       </Card>
     </div>

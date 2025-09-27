@@ -75,6 +75,13 @@ export interface Analysis {
 }
 
 export interface ExtractedData {
+  // Datos del paciente
+  nombre_paciente?: string;
+  edad_paciente?: number;
+  sexo_paciente?: string;
+  nhc_paciente?: string;
+  referencia_paciente?: string;
+  
   // Hematología
   eritrocitos?: number;
   hemoglobina?: number;

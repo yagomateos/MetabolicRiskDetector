@@ -48,6 +48,15 @@ export const useMetabolicAnalyzer = () => {
   const [isProcessing, setIsProcessing] = useState(false);
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [currentData, setCurrentData] = useState<BloodAnalysis>(baseline);
+  const [patientInfo, setPatientInfo] = useState<{
+    nombre: string;
+    edad: number;
+    sexo: string;
+  }>({
+    nombre: "Santiago Mateos",
+    edad: 45,
+    sexo: "Varón"
+  });
 
   const runAnalysis = useCallback((dataToAnalyze: Partial<BloodAnalysis> = baseline) => {
     const result = performAdvancedAnalysis(dataToAnalyze, baseline, historicalData);
@@ -64,6 +73,17 @@ export const useMetabolicAnalyzer = () => {
       const extracted = await extractDataFromFile(file);
       setExtractedData(extracted);
       setNewData(extracted);
+
+      // Actualizar información del paciente si está disponible
+      if (extracted.nombre_paciente || extracted.edad_paciente || extracted.sexo_paciente) {
+        const newPatientInfo = {
+          nombre: extracted.nombre_paciente || patientInfo.nombre,
+          edad: extracted.edad_paciente || patientInfo.edad,
+          sexo: extracted.sexo_paciente === 'M' ? 'Varón' : extracted.sexo_paciente === 'F' ? 'Mujer' : patientInfo.sexo
+        };
+        setPatientInfo(newPatientInfo);
+        console.log('👤 ACTUALIZANDO datos del paciente:', newPatientInfo);
+      }
 
       // Crear nueva entrada con datos extraídos
       const newEntry: BloodAnalysis = {
@@ -142,6 +162,7 @@ export const useMetabolicAnalyzer = () => {
     extractedData,
     baseline,
     currentData,
+    patientInfo,
 
     // Actions
     setNewData,
