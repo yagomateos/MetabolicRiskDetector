@@ -6,7 +6,7 @@ interface BiochemistryViewProps {
   baseline: BloodAnalysis;
 }
 
-export const BiochemistryView: React.FC<BiochemistryViewProps> = ({ baseline }) => {
+export const BiochemistryView: React.FC<BiochemistryViewProps> = ({ baseline: currentData }) => {
   const getStatus = (value: number, normalRange: {min: number, max: number}) => {
     if (value < normalRange.min) return 'BAJO';
     if (value > normalRange.max) return 'ALTO';
@@ -25,30 +25,30 @@ export const BiochemistryView: React.FC<BiochemistryViewProps> = ({ baseline }) 
   const biochemistryData = [
     {
       name: 'Glucosa',
-      value: baseline.glucosa,
+      value: currentData.glucosa,
       unit: 'mg/dL',
-      status: getStatus(baseline.glucosa, {min: 74, max: 110}),
+      status: getStatus(currentData.glucosa, {min: 74, max: 110}),
       range: '74-110'
     },
     {
       name: 'Creatinina',
-      value: baseline.creatinina,
+      value: currentData.creatinina,
       unit: 'mg/dL',
-      status: getStatus(baseline.creatinina, {min: 0.6, max: 1.1}),
+      status: getStatus(currentData.creatinina, {min: 0.6, max: 1.1}),
       range: '0.6-1.1'
     },
     {
       name: 'Urea',
-      value: baseline.urea,
+      value: currentData.urea,
       unit: 'mg/dL',
-      status: getStatus(baseline.urea, {min: 17, max: 49}),
+      status: getStatus(currentData.urea, {min: 17, max: 49}),
       range: '17-49'
     },
     {
       name: 'Bilirrubina',
-      value: baseline.bilirrubina,
+      value: currentData.bilirrubina,
       unit: 'mg/dL',
-      status: getStatus(baseline.bilirrubina, {min: 0.1, max: 1.2}),
+      status: getStatus(currentData.bilirrubina, {min: 0.1, max: 1.2}),
       range: '0.1-1.2'
     }
   ].filter(item => item.value != null);

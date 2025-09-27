@@ -1,4 +1,4 @@
-import { useState, useEffect } from 'react';
+import { useState, useEffect, useCallback } from 'react';
 import { BloodAnalysis, Analysis, ExtractedData, UploadMode } from '../types';
 import { performAdvancedAnalysis } from '../utils/analysisEngine.ts';
 import { extractDataFromFile } from '../services/fileExtraction.ts';
@@ -49,10 +49,10 @@ export const useMetabolicAnalyzer = () => {
   const [extractedData, setExtractedData] = useState<ExtractedData | null>(null);
   const [currentData, setCurrentData] = useState<BloodAnalysis>(baseline);
 
-  const runAnalysis = (dataToAnalyze: Partial<BloodAnalysis> = baseline) => {
+  const runAnalysis = useCallback((dataToAnalyze: Partial<BloodAnalysis> = baseline) => {
     const result = performAdvancedAnalysis(dataToAnalyze, baseline, historicalData);
     setAnalysis(result);
-  };
+  }, [historicalData]);
 
   const handleFileUpload = async (file: File) => {
     if (!file.type.includes('pdf') && !file.type.startsWith('image/')) {
@@ -116,13 +116,12 @@ export const useMetabolicAnalyzer = () => {
     setNewData({});
     setExtractedData(null);
     setUploadMode('manual');
-    setCurrentData(baseline);
-    runAnalysis(baseline);
+    // No resetear currentData ni análisis cuando solo se cierra el formulario
   };
 
   useEffect(() => {
     runAnalysis();
-  }, []);
+  }, [runAnalysis]);
 
   return {
     // State

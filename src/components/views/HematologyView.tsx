@@ -6,7 +6,7 @@ interface HematologyViewProps {
   baseline: BloodAnalysis;
 }
 
-export const HematologyView: React.FC<HematologyViewProps> = ({ baseline }) => {
+export const HematologyView: React.FC<HematologyViewProps> = ({ baseline: currentData }) => {
   const getStatusColor = (status: string) => {
     switch (status) {
       case 'Normal': return 'bg-gray-50';
@@ -36,38 +36,38 @@ export const HematologyView: React.FC<HematologyViewProps> = ({ baseline }) => {
   const hematologyData = [
     {
       name: 'Eritrocitos',
-      value: baseline.eritrocitos,
-      status: getStatus(baseline.eritrocitos, {min: 4.2, max: 5.4}),
+      value: currentData.eritrocitos,
+      status: getStatus(currentData.eritrocitos, {min: 4.2, max: 5.4}),
       range: '4.2-5.4'
     },
     {
       name: 'Hemoglobina',
-      value: baseline.hemoglobina,
-      status: getStatus(baseline.hemoglobina, {min: 12.0, max: 16.0}),
+      value: currentData.hemoglobina,
+      status: getStatus(currentData.hemoglobina, {min: 12.0, max: 16.0}),
       range: '12.0-16.0'
     },
     {
       name: 'Leucocitos',
-      value: baseline.leucocitos,
-      status: getStatus(baseline.leucocitos, {min: 4.0, max: 10.0}),
+      value: currentData.leucocitos,
+      status: getStatus(currentData.leucocitos, {min: 4.0, max: 10.0}),
       range: '4.0-10.0'
     },
     {
       name: 'Neutrófilos',
-      value: `${baseline.neutrofilos}%`,
-      status: getStatus(baseline.neutrofilos, {min: 50, max: 70}),
+      value: `${currentData.neutrofilos}%`,
+      status: getStatus(currentData.neutrofilos, {min: 50, max: 70}),
       range: '50-70%'
     },
     {
       name: 'Linfocitos',
-      value: `${baseline.linfocitos}%`,
-      status: getStatus(baseline.linfocitos, {min: 20, max: 40}),
+      value: `${currentData.linfocitos}%`,
+      status: getStatus(currentData.linfocitos, {min: 20, max: 40}),
       range: '20-40%'
     },
     {
       name: 'Plaquetas',
-      value: baseline.plaquetas,
-      status: getStatus(baseline.plaquetas, {min: 150, max: 400}),
+      value: currentData.plaquetas,
+      status: getStatus(currentData.plaquetas, {min: 150, max: 400}),
       range: '150-400'
     }
   ].filter(item => item.value != null);

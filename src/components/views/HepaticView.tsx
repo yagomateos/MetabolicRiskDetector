@@ -7,7 +7,7 @@ interface HepaticViewProps {
   analysis: Analysis | null;
 }
 
-export const HepaticView: React.FC<HepaticViewProps> = ({ baseline, analysis }) => {
+export const HepaticView: React.FC<HepaticViewProps> = ({ baseline: currentData, analysis }) => {
   const getStatus = (value: number, normalRange: {min: number, max: number}) => {
     if (value < normalRange.min) return 'BAJO';
     if (value > normalRange.max) return 'ALTO';
@@ -23,9 +23,9 @@ export const HepaticView: React.FC<HepaticViewProps> = ({ baseline, analysis }) 
     }
   };
 
-  const altStatus = getStatus(baseline.alt, {min: 7, max: 56});
-  const astStatus = getStatus(baseline.ast, {min: 10, max: 40});
-  const astAltRatio = baseline.ast / baseline.alt;
+  const altStatus = getStatus(currentData.alt, {min: 7, max: 56});
+  const astStatus = getStatus(currentData.ast, {min: 10, max: 40});
+  const astAltRatio = currentData.ast / currentData.alt;
 
   return (
     <div className="space-y-4">
@@ -36,13 +36,13 @@ export const HepaticView: React.FC<HepaticViewProps> = ({ baseline, analysis }) 
         <div className="space-y-3">
           <div className={`text-center p-3 rounded-lg ${getStatusColor(altStatus)}`}>
             <h3 className="font-semibold text-sm mb-1">ALT (Alanina Aminotransferasa)</h3>
-            <div className="text-2xl font-bold mb-1">{baseline.alt} U/L</div>
+            <div className="text-2xl font-bold mb-1">{currentData.alt} U/L</div>
             <p className="text-xs font-semibold">{altStatus}</p>
             <p className="text-xs text-gray-500 mt-1">Ref: 7-56 U/L</p>
           </div>
           <div className={`text-center p-3 rounded-lg ${getStatusColor(astStatus)}`}>
             <h3 className="font-semibold text-sm mb-1">AST (Aspartato Aminotransferasa)</h3>
-            <div className="text-2xl font-bold mb-1">{baseline.ast} U/L</div>
+            <div className="text-2xl font-bold mb-1">{currentData.ast} U/L</div>
             <p className="text-xs font-semibold">{astStatus}</p>
             <p className="text-xs text-gray-500 mt-1">Ref: 10-40 U/L</p>
           </div>
