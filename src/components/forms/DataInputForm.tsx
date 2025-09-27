@@ -1,4 +1,4 @@
-import React from 'react';
+import React, { useState, useRef } from 'react';
 import { BloodAnalysis, UploadMode, ExtractedData } from '../../types';
 import { FileText, Smartphone, Upload, Camera } from 'lucide-react';
 import { Button } from '../ui/Button.tsx';
@@ -24,9 +24,36 @@ export const DataInputForm: React.FC<DataInputFormProps> = ({
   onSubmit,
   onCancel
 }) => {
+  const [isDragOver, setIsDragOver] = useState(false);
+  const fileInputRef = useRef<HTMLInputElement>(null);
+
   const handleInputChange = (field: keyof BloodAnalysis, value: string) => {
     const numericValue = value === '' ? '' : parseFloat(value);
     onDataChange({ ...newData, [field]: numericValue });
+  };
+
+  const handleDragOver = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(true);
+  };
+
+  const handleDragLeave = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+  };
+
+  const handleDrop = (e: React.DragEvent) => {
+    e.preventDefault();
+    setIsDragOver(false);
+    
+    const files = e.dataTransfer.files;
+    if (files.length > 0 && files[0].type.includes('pdf')) {
+      // Simular el evento de cambio del input
+      const fakeEvent = {
+        target: { files: [files[0]] }
+      } as unknown as React.ChangeEvent<HTMLInputElement>;
+      onFileUpload(fakeEvent);
+    }
   };
 
   return (
@@ -82,11 +109,28 @@ export const DataInputForm: React.FC<DataInputFormProps> = ({
 
       {uploadMode === 'pdf' && (
         <div className="text-center">
-          <div className="border-2 border-dashed border-gray-300 rounded-lg p-6">
-            <FileText className="h-12 w-12 text-gray-400 mx-auto mb-2" />
-            <h3 className="text-sm font-semibold mb-2">Subir Informe PDF</h3>
-            <p className="text-xs text-gray-600 mb-4">La IA extraerá automáticamente todos los valores</p>
+          <div 
+            className={`border-2 border-dashed rounded-lg p-6 transition-colors ${
+              isDragOver 
+                ? 'border-blue-500 bg-blue-50' 
+                : 'border-gray-300 hover:border-gray-400'
+            }`}
+            onDragOver={handleDragOver}
+            onDragLeave={handleDragLeave}
+            onDrop={handleDrop}
+          >
+            <FileText className={`h-12 w-12 mx-auto mb-2 ${isDragOver ? 'text-blue-500' : 'text-gray-400'}`} />
+            <h3 className="text-sm font-semibold mb-2">
+              {isDragOver ? 'Suelta el PDF aquí' : 'Subir Informe PDF'}
+            </h3>
+            <p className="text-xs text-gray-600 mb-4">
+              {isDragOver 
+                ? 'El archivo se procesará automáticamente' 
+                : 'Arrastra y suelta un PDF o haz clic para seleccionar'
+              }
+            </p>
             <input
+              ref={fileInputRef}
               type="file"
               accept=".pdf"
               onChange={onFileUpload}
@@ -95,7 +139,7 @@ export const DataInputForm: React.FC<DataInputFormProps> = ({
             />
             <label
               htmlFor="pdf-upload"
-              className="bg-blue-600 text-white px-4 py-2 rounded-lg text-sm cursor-pointer"
+              className="bg-blue-600 hover:bg-blue-700 text-white px-4 py-2 rounded-lg text-sm cursor-pointer transition-colors"
             >
               Seleccionar PDF
             </label>
