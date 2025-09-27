@@ -77,8 +77,9 @@ export const useMetabolicAnalyzer = () => {
       const updatedHistory = [...historicalData, newEntry];
       setHistoricalData(updatedHistory);
 
-      // Ejecutar análisis con los nuevos datos
-      runAnalysis(newEntry);
+      // Ejecutar análisis con el historial actualizado
+      const result = performAdvancedAnalysis(newEntry, baseline, updatedHistory);
+      setAnalysis(result);
     } catch (error) {
       throw new Error('Error procesando el archivo. Inténtalo de nuevo.');
     } finally {
@@ -100,7 +101,7 @@ export const useMetabolicAnalyzer = () => {
     const newEntry: BloodAnalysis = {
       ...baseline,
       ...Object.fromEntries(
-        Object.entries(newData).filter(([_, value]) => value !== '' && value !== null)
+        Object.entries(newData).filter(([_, value]) => value !== '' && value !== null && value !== undefined)
       ),
       fecha: newData.fecha || new Date().toISOString().split('T')[0]
     } as BloodAnalysis;
@@ -108,7 +109,11 @@ export const useMetabolicAnalyzer = () => {
     const updatedHistory = [...historicalData, newEntry];
     setHistoricalData(updatedHistory);
     setCurrentData(newEntry);
-    runAnalysis(newEntry);
+
+    // Ejecutar análisis con el historial actualizado
+    const result = performAdvancedAnalysis(newEntry, baseline, updatedHistory);
+    setAnalysis(result);
+
     resetForm();
   };
 
@@ -120,8 +125,10 @@ export const useMetabolicAnalyzer = () => {
   };
 
   useEffect(() => {
-    runAnalysis();
-  }, [runAnalysis]);
+    // Solo ejecutar análisis inicial una vez al montar el componente
+    const result = performAdvancedAnalysis(baseline, baseline, [baseline]);
+    setAnalysis(result);
+  }, []); // Array vacío para ejecutar solo una vez
 
   return {
     // State

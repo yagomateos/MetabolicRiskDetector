@@ -39,13 +39,17 @@ export const performAdvancedAnalysis = (
   let cvRisk = 0;
   if (current.glucosa >= 126) cvRisk += 3;
   else if (current.glucosa >= 100) cvRisk += 2;
-  if (current.alt > 80) cvRisk += 1;
-  if (current.leucocitos > 10) cvRisk += 1;
+  else if (current.glucosa >= 90) cvRisk += 1;
+  if (current.alt > 80) cvRisk += 2;
+  else if (current.alt > 56) cvRisk += 1;
+  if (current.leucocitos > 10) cvRisk += 2;
+  else if (current.leucocitos > 8.5) cvRisk += 1;
 
   systemAlerts.cardiovascular = {
-    risk: cvRisk >= 3 ? 'ALTO' : cvRisk >= 2 ? 'MODERADO' : 'BAJO',
+    risk: cvRisk >= 4 ? 'ALTO' : cvRisk >= 2 ? 'MODERADO' : 'BAJO',
     score: cvRisk,
-    details: cvRisk >= 2 ? 'Prediabetes + inflamación detectada' : 'Parámetros normales'
+    details: cvRisk >= 4 ? 'Múltiples factores de riesgo' :
+             cvRisk >= 2 ? 'Factores de riesgo moderados' : 'Parámetros normales'
   };
 
   // Análisis metabólico
@@ -76,27 +80,67 @@ export const performAdvancedAnalysis = (
 
   riskScore = cvRisk + metabolicSyndrome + hepaticRisk;
 
-  // Recomendaciones
+  // Recomendaciones dinámicas
   if (current.glucosa >= 140) {
-    recommendations.push('🎯 HbA1c + curva de glucosa');
+    recommendations.push('🎯 HbA1c + curva de glucosa URGENTE');
     recommendations.push('📊 Monitoreo glucosa 2x/día');
+  } else if (current.glucosa >= 100) {
+    recommendations.push('🎯 HbA1c para confirmar prediabetes');
+    recommendations.push('🥗 Dieta baja en carbohidratos');
+  } else if (current.glucosa >= 90) {
+    recommendations.push('📊 Monitoreo glucosa periódico');
   }
-  if (current.leucocitos > 9) {
+
+  if (current.leucocitos > 10) {
+    recommendations.push('🔬 PCR, VSG, hemocultivo');
+    recommendations.push('🚨 Evaluación infección/inflamación');
+  } else if (current.leucocitos > 8.5) {
     recommendations.push('🔬 PCR, VSG');
     recommendations.push('🥗 Dieta antiinflamatoria');
   }
 
-  // Insights
-  insights.push({
-    title: 'Patrón Inflamatorio',
-    description: `Leucocitos ${current.leucocitos} + neutrofilia sugiere inflamación subclínica asociada a prediabetes.`,
-    severity: 'medium'
-  });
+  if (current.alt > 80) {
+    recommendations.push('🛡️ Ecografía hepática urgente');
+    recommendations.push('🍺 Suspender alcohol completamente');
+  } else if (current.alt > 56) {
+    recommendations.push('🛡️ Control hepático en 2-4 semanas');
+    recommendations.push('🚫 Reducir alcohol y medicamentos hepatotóxicos');
+  }
 
+  // Insights dinámicos
+  if (current.leucocitos > 10) {
+    insights.push({
+      title: 'Leucocitosis Significativa',
+      description: `Leucocitos ${current.leucocitos}: Posible infección aguda o inflamación sistémica. Requiere evaluación urgente.`,
+      severity: 'high'
+    });
+  } else if (current.leucocitos > 8.5) {
+    insights.push({
+      title: 'Patrón Inflamatorio',
+      description: `Leucocitos ${current.leucocitos}: Inflamación subclínica, frecuente en síndrome metabólico.`,
+      severity: 'medium'
+    });
+  }
+
+  if (current.glucosa >= 126) {
+    insights.push({
+      title: 'Diabetes Mellitus',
+      description: `Glucosa ${current.glucosa} mg/dL: Criterio diagnóstico de diabetes. Iniciar tratamiento.`,
+      severity: 'high'
+    });
+  } else if (current.glucosa >= 100) {
+    insights.push({
+      title: 'Prediabetes',
+      description: `Glucosa ${current.glucosa} mg/dL: Alteración metabólica. Riesgo de progresión a diabetes.`,
+      severity: 'medium'
+    });
+  }
+
+  const cvRiskPercentage = Math.min(cvRisk * 8 + 5, 85); // Más preciso y limitado a 85%
   insights.push({
     title: 'Riesgo Cardiovascular',
-    description: `Riesgo estimado evento CV en 10 años: ${(cvRisk * 5 + 10).toFixed(1)}%`,
-    severity: 'high'
+    description: `Riesgo estimado evento CV en 10 años: ${cvRiskPercentage.toFixed(1)}%`,
+    severity: cvRiskPercentage > 20 ? 'high' : cvRiskPercentage > 10 ? 'medium' : 'low'
   });
 
   return {
@@ -108,17 +152,17 @@ export const performAdvancedAnalysis = (
     alerts,
     current,
     calculatedRisks: {
-      cardiovascular: (cvRisk * 5 + 10).toFixed(1),
-      diabetes: current.glucosa >= 126 ? 95 : current.glucosa >= 100 ? 65 : 15,
-      hepatico: hepaticRisk * 15
+      cardiovascular: cvRiskPercentage.toFixed(1),
+      diabetes: current.glucosa >= 126 ? 95 : current.glucosa >= 100 ? 65 : current.glucosa >= 90 ? 25 : 5,
+      hepatico: Math.min(hepaticRisk * 20, 80)
     }
   };
 };
 
 const calculateTrend = (current: number, previous: number): Trend => {
   const change = current - previous;
-  const percentage = ((change / previous) * 100).toFixed(1);
-  const trend = change > 0 ? 'up' : change < 0 ? 'down' : 'stable';
+  const percentage = previous !== 0 ? ((change / previous) * 100).toFixed(1) : '0.0';
+  const trend = Math.abs(change) < 0.01 ? 'stable' : change > 0 ? 'up' : 'down';
 
-  return { change, percentage, trend };
+  return { change: Number(change.toFixed(2)), percentage, trend };
 };

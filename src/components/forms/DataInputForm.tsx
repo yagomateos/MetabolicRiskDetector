@@ -25,7 +25,7 @@ export const DataInputForm: React.FC<DataInputFormProps> = ({
   onCancel
 }) => {
   const handleInputChange = (field: keyof BloodAnalysis, value: string) => {
-    const numericValue = parseFloat(value) || '';
+    const numericValue = value === '' ? '' : parseFloat(value);
     onDataChange({ ...newData, [field]: numericValue });
   };
 
