@@ -11,10 +11,10 @@ export const Card: React.FC<CardProps> = ({
   className = '',
   padding = true
 }) => {
-  const paddingClass = padding ? 'p-4' : '';
+  const paddingClass = padding ? 'p-4 sm:p-6' : '';
 
   return (
-    <div className={`bg-white rounded-lg shadow ${paddingClass} ${className}`}>
+    <div className={`gradient-bg-card rounded-2xl shadow-lg border border-gray-100 mobile-card hover-lift max-w-full overflow-hidden mobile-card-spacing mobile-text smooth-transition ${paddingClass} ${className}`}>
       {children}
     </div>
   );
@@ -30,7 +30,7 @@ export const CardHeader: React.FC<CardHeaderProps> = ({
   className = ''
 }) => {
   return (
-    <div className={`mb-3 ${className}`}>
+    <div className={`mb-4 pb-2 border-b border-gray-100 ${className}`}>
       {children}
     </div>
   );
@@ -46,7 +46,7 @@ export const CardTitle: React.FC<CardTitleProps> = ({
   className = ''
 }) => {
   return (
-    <h2 className={`text-sm font-semibold ${className}`}>
+    <h2 className={`text-lg font-semibold text-gray-800 mobile-title ${className}`}>
       {children}
     </h2>
   );

@@ -82,7 +82,7 @@ function App() {
   };
 
   return (
-    <div className="min-h-screen bg-gray-50">
+    <div className="min-h-screen gradient-bg-soft max-w-full overflow-x-hidden">
       <Header
         patientName={patientInfo.nombre}
         age={patientInfo.edad}
@@ -108,15 +108,15 @@ function App() {
         />
       )}
 
-      <div className="p-4">
+      <div className="p-3 sm:p-5 max-w-full space-y-4">
         {renderMainContent()}
       </div>
 
-      <div className="bg-white border-t p-3 text-center">
-        <p className="text-xs text-gray-600">
-          🔄 Última actualización: {currentData.fecha} |
-          🤖 Análisis IA personalizado |
-          📱 Optimizado para móvil
+      <div className="gradient-bg-card border-t border-gray-100 p-4 text-center shadow-lg">
+        <p className="text-sm text-gray-600 break-words mobile-caption font-medium">
+          🔄 Actualizado: {currentData.fecha?.slice(0, 10)} |
+          🤖 Análisis IA |
+          📱 Diseño Optimizado
         </p>
       </div>
     </div>

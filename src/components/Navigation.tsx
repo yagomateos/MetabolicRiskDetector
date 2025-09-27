@@ -23,53 +23,58 @@ export const Navigation: React.FC<NavigationProps> = ({
   onToggleForm
 }) => {
   return (
-    <div className="bg-white border-b p-2">
-      <div className="flex space-x-1 overflow-x-auto pb-2">
+    <div className="bg-white border-b border-gray-200 p-3 max-w-full overflow-x-hidden">
+      <div className="flex overflow-x-auto gap-2 pb-2 nav-scroll">
         {Object.entries(categories).map(([key, cat]) => {
           const Icon = cat.icon;
+          const isActive = selectedCategory === key;
           return (
             <button
               key={key}
               onClick={() => onCategoryChange(key as Category)}
-              className={`flex items-center px-3 py-2 rounded-lg whitespace-nowrap text-xs ${
-                selectedCategory === key
-                  ? 'bg-blue-600 text-white'
-                  : 'bg-gray-100 text-gray-700'
+              className={`flex items-center justify-center flex-shrink-0 px-3 py-2 rounded-lg text-xs font-medium transition-all duration-200 ${
+                isActive
+                  ? 'bg-blue-600 text-white shadow-sm'
+                  : 'bg-gray-100 text-gray-700 hover:bg-gray-200'
               }`}
+              style={{ minWidth: '70px' }}
             >
-              <Icon className="h-3 w-3 mr-1" />
-              {cat.name}
+              <Icon className="h-3 w-3 mr-1.5" />
+              <span>{cat.name}</span>
             </button>
           );
         })}
       </div>
 
-      <div className="flex space-x-2 mt-3">
+      <div className="grid grid-cols-3 gap-3 mt-4">
         <Button
           onClick={() => onToggleForm('manual')}
           variant="success"
-          className="flex-1"
+          className="mobile-button smooth-transition py-3.5 rounded-2xl shadow-lg hover:shadow-xl button-press focus-ring hover-lift"
           size="sm"
         >
-          <TrendingUp className="h-4 w-4 mr-1" />
-          Manual
+          <TrendingUp className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-white" />
+          <span className="hidden sm:inline mobile-button-text">Manual</span>
+          <span className="sm:hidden mobile-button-text">✏️ Manual</span>
         </Button>
         <Button
           onClick={() => onToggleForm('pdf')}
-          className="flex-1"
+          className="mobile-button smooth-transition py-3.5 rounded-2xl shadow-lg hover:shadow-xl bg-gradient-to-r from-indigo-600 to-indigo-700 hover:from-indigo-700 hover:to-indigo-800 button-press focus-ring hover-lift text-white"
           size="sm"
         >
-          <Upload className="h-4 w-4 mr-1" />
-          Subir PDF
+          <Upload className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-white" />
+          <span className="hidden sm:inline mobile-button-text">Subir PDF</span>
+          <span className="sm:hidden mobile-button-text">📄 PDF</span>
         </Button>
         <Button
           onClick={() => onToggleForm('camera')}
           variant="warning"
-          className="flex-1 bg-purple-600 hover:bg-purple-700"
+          className="mobile-button smooth-transition py-3.5 rounded-2xl shadow-lg hover:shadow-xl bg-gradient-to-r from-purple-600 to-purple-700 hover:from-purple-700 hover:to-purple-800 button-press focus-ring hover-lift text-white"
           size="sm"
         >
-          <Camera className="h-4 w-4 mr-1" />
-          Foto
+          <Camera className="h-4 w-4 sm:h-5 sm:w-5 mr-2 text-white" />
+          <span className="hidden sm:inline mobile-button-text">Foto</span>
+          <span className="sm:hidden mobile-button-text">📸 Foto</span>
         </Button>
       </div>
     </div>

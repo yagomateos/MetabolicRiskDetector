@@ -2,13 +2,319 @@
 @tailwind components;
 @tailwind utilities;
 
-body {
+/* Prevenir scroll horizontal global */
+html, body {
+  overflow-x: hidden;
   margin: 0;
-  font-family: -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
+  padding: 0;
+  font-family: 'Inter', -apple-system, BlinkMacSystemFont, 'Segoe UI', 'Roboto', 'Oxygen',
     'Ubuntu', 'Cantarell', 'Fira Sans', 'Droid Sans', 'Helvetica Neue',
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  font-feature-settings: 'cv02', 'cv03', 'cv04', 'cv11';
+  line-height: 1.5;
+  color: #1f2937;
+}
+
+/* Contenedor principal */
+#root {
+  max-width: 100vw;
+  overflow-x: hidden;
+}
+
+/* Mejorar el scroll horizontal en móvil */
+.horizontal-scroll {
+  overflow-x: auto;
+  overflow-y: hidden;
+  -webkit-overflow-scrolling: touch;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.horizontal-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Navegación compacta y profesional */
+.nav-scroll {
+  overflow-x: auto;
+  scrollbar-width: none;
+  -ms-overflow-style: none;
+}
+
+.nav-scroll::-webkit-scrollbar {
+  display: none;
+}
+
+/* Optimización específica para móvil - Pixel Perfect */
+@media (max-width: 640px) {
+  .mobile-button {
+    min-width: 88px; /* Aumentado para mejor touch target */
+    min-height: 44px; /* Apple HIG minimum touch target */
+    font-size: 0.875rem; /* 14px - más legible en móvil */
+    padding: 0.75rem 1rem; /* 12px 16px - espaciado preciso */
+    line-height: 1.4;
+    font-weight: 600; /* Más bold para mejor contraste */
+    letter-spacing: 0; /* Sin letter-spacing negativo para mejor legibilidad */
+  }
+
+  /* Mejores espaciados móvil */
+  .mobile-spacing {
+    padding: 1rem; /* 16px - más respirable */
+    margin-bottom: 0.75rem;
+  }
+
+  /* Texto más legible en móvil */
+  .mobile-text {
+    line-height: 1.45; /* Más legible */
+    letter-spacing: -0.01em; /* Mejor tracking */
+    font-weight: 450; /* Peso intermedio más legible */
+  }
+
+  /* Cards más respirables */
+  .mobile-card-spacing {
+    padding: 1.25rem; /* 20px - más profesional */
+    margin: 0.75rem 0; /* 12px vertical */
+  }
+
+  /* Grid optimizado */
+  .mobile-grid {
+    gap: 1rem; /* 16px - más consistente */
+  }
+
+  /* Títulos optimizados móvil */
+  .mobile-title {
+    font-size: 1.125rem; /* 18px */
+    font-weight: 600;
+    line-height: 1.35;
+    letter-spacing: -0.02em;
+  }
+
+  /* Subtítulos móvil */
+  .mobile-subtitle {
+    font-size: 0.938rem; /* 15px */
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: -0.01em;
+  }
+
+  /* Texto de cuerpo móvil */
+  .mobile-body {
+    font-size: 0.875rem; /* 14px */
+    font-weight: 400;
+    line-height: 1.5;
+    letter-spacing: 0;
+  }
+
+  /* Texto pequeño móvil */
+  .mobile-caption {
+    font-size: 0.75rem; /* 12px */
+    font-weight: 500;
+    line-height: 1.4;
+    letter-spacing: 0.01em;
+  }
+
+  /* Mejorar contraste en botones móvil */
+  .mobile-button-text {
+    text-shadow: 0 1px 2px rgba(0, 0, 0, 0.1);
+    font-weight: 600;
+    color: white !important;
+  }
+
+  /* Navegación móvil profesional */
+  .nav-button-active {
+    background: #3b82f6 !important;
+    color: white !important;
+    font-weight: 500 !important;
+    border: 1px solid #3b82f6 !important;
+    font-size: 0.75rem !important; /* 12px para que no se corte */
+    padding: 0.5rem 0.75rem !important; /* padding reducido */
+    min-width: auto !important;
+  }
+
+  .nav-button-inactive {
+    background: #f8fafc !important;
+    color: #374151 !important; /* gray-700 */
+    font-weight: 500 !important;
+    border: 1px solid #e5e7eb !important; /* gray-200 */
+    font-size: 0.75rem !important; /* 12px para que no se corte */
+    padding: 0.5rem 0.75rem !important; /* padding reducido */
+    min-width: auto !important;
+  }
+
+  .nav-button-inactive:hover {
+    background: #f1f5f9 !important;
+    color: #1f2937 !important;
+    border-color: #d1d5db !important;
+  }
+}
+
+/* Animaciones suaves y micro-interacciones */
+.smooth-transition {
+  transition: all 0.3s cubic-bezier(0.25, 0.46, 0.45, 0.94);
+}
+
+/* Efectos hover mejorados */
+.hover-lift:hover {
+  transform: translateY(-4px);
+  box-shadow: 0 8px 25px rgba(0, 0, 0, 0.12);
+}
+
+/* Animación de aparición suave */
+@keyframes fadeInUp {
+  from {
+    opacity: 0;
+    transform: translateY(20px);
+  }
+  to {
+    opacity: 1;
+    transform: translateY(0);
+  }
+}
+
+.fade-in-up {
+  animation: fadeInUp 0.6s ease-out;
+}
+
+/* Animación de botones */
+.button-press:active {
+  transform: scale(0.95);
+  transition: transform 0.1s ease;
+}
+
+/* Animación de loading mejorada */
+@keyframes shimmer {
+  0% {
+    background-position: -468px 0;
+  }
+  100% {
+    background-position: 468px 0;
+  }
+}
+
+.loading-shimmer {
+  background: linear-gradient(90deg, #f0f0f0 25%, #e0e0e0 50%, #f0f0f0 75%);
+  background-size: 400% 100%;
+  animation: shimmer 1.2s ease-in-out infinite;
+}
+
+/* Mejores focus states */
+.focus-ring:focus {
+  outline: none;
+  ring: 3px;
+  ring-color: rgba(59, 130, 246, 0.5);
+  ring-offset: 2px;
+}
+
+/* Animación para alertas críticas */
+@keyframes pulseGlow {
+  0%, 100% {
+    box-shadow: 0 0 0 0 rgba(239, 68, 68, 0.7);
+  }
+  50% {
+    box-shadow: 0 0 0 15px rgba(239, 68, 68, 0);
+  }
+}
+
+.pulse-glow {
+  animation: pulseGlow 2s infinite;
+}
+
+/* Pulso para elementos críticos */
+@keyframes pulse-critical {
+  0%, 100% { opacity: 1; }
+  50% { opacity: 0.7; }
+}
+
+.pulse-critical {
+  animation: pulse-critical 2s infinite;
+}
+
+/* Gradientes profesionales y modernos */
+.gradient-bg-medical {
+  background: linear-gradient(135deg, #3b82f6 0%, #6366f1 50%, #8b5cf6 100%);
+  box-shadow: 0 4px 20px rgba(59, 130, 246, 0.15);
+}
+
+.gradient-bg-success {
+  background: linear-gradient(135deg, #059669 0%, #10b981 100%);
+  box-shadow: 0 4px 20px rgba(5, 150, 105, 0.15);
+}
+
+.gradient-bg-warning {
+  background: linear-gradient(135deg, #f59e0b 0%, #f97316 100%);
+  box-shadow: 0 4px 20px rgba(245, 158, 11, 0.15);
+}
+
+.gradient-bg-danger {
+  background: linear-gradient(135deg, #dc2626 0%, #ef4444 100%);
+  box-shadow: 0 4px 20px rgba(220, 38, 38, 0.15);
+}
+
+/* Gradientes sutiles para fondos */
+.gradient-bg-soft {
+  background: linear-gradient(135deg, #f8fafc 0%, #f1f5f9 100%);
+}
+
+.gradient-bg-card {
+  background: linear-gradient(135deg, #ffffff 0%, #fafbfc 100%);
+  backdrop-filter: blur(10px);
+  border: 1px solid rgba(255, 255, 255, 0.2);
+}
+
+/* Mejorar cards en móvil */
+.mobile-card {
+  margin: 0.5rem;
+  border-radius: 0.75rem;
+  box-shadow: 0 1px 3px rgba(0, 0, 0, 0.1);
+  transition: all 0.3s ease;
+}
+
+.mobile-card:hover {
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+/* Mejores inputs */
+.input-enhanced {
+  transition: border-color 0.3s ease, box-shadow 0.3s ease;
+}
+
+.input-enhanced:focus {
+  border-color: #667eea;
+  box-shadow: 0 0 0 3px rgba(102, 126, 234, 0.1);
+}
+
+/* Loading spinner mejorado */
+.spinner {
+  border: 2px solid #f3f3f3;
+  border-top: 2px solid #667eea;
+  border-radius: 50%;
+  width: 20px;
+  height: 20px;
+  animation: spin 1s linear infinite;
+}
+
+@keyframes spin {
+  0% { transform: rotate(0deg); }
+  100% { transform: rotate(360deg); }
+}
+
+/* Toast notifications */
+.toast-success {
+  background: linear-gradient(45deg, #11998e, #38ef7d);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
+}
+
+.toast-error {
+  background: linear-gradient(45deg, #fc466b, #3f5efb);
+  color: white;
+  padding: 12px 16px;
+  border-radius: 8px;
+  box-shadow: 0 4px 12px rgba(0, 0, 0, 0.15);
 }
 
 code {

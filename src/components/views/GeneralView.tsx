@@ -14,27 +14,38 @@ interface GeneralViewProps {
 
 export const GeneralView: React.FC<GeneralViewProps> = ({ analysis, historicalDataLength }) => {
   return (
-    <div className="space-y-4">
-      <CriticalAlerts alerts={analysis.alerts} />
+    <div className="space-y-5 sm:space-y-6 max-w-full mobile-spacing fade-in-up">
+      <div className="fade-in-up" style={{ animationDelay: '0.1s' }}>
+        <CriticalAlerts alerts={analysis.alerts} />
+      </div>
 
-      <TrendAnalysis analysis={analysis} historicalDataLength={historicalDataLength} />
+      <div className="fade-in-up" style={{ animationDelay: '0.2s' }}>
+        <TrendAnalysis analysis={analysis} historicalDataLength={historicalDataLength} />
+      </div>
 
-      <RiskMetrics analysis={analysis} />
+      <div className="fade-in-up" style={{ animationDelay: '0.3s' }}>
+        <RiskMetrics analysis={analysis} />
+      </div>
 
-      <Card>
-        <CardHeader>
-          <CardTitle>Análisis por Sistemas</CardTitle>
-        </CardHeader>
-        <div className="space-y-3">
-          {Object.entries(analysis.systemAlerts).map(([system, data]) => (
-            <SystemAlert key={system} system={system} data={data} />
-          ))}
-        </div>
-      </Card>
+      <div className="fade-in-up" style={{ animationDelay: '0.4s' }}>
+        <Card>
+          <CardHeader>
+            <CardTitle className="mobile-title">📊 Análisis por Sistemas</CardTitle>
+          </CardHeader>
+          <div className="space-y-4">
+            {Object.entries(analysis.systemAlerts).map(([system, data]) => (
+              <SystemAlert key={system} system={system} data={data} />
+            ))}
+          </div>
+        </Card>
+      </div>
 
-      <InsightsPanel insights={analysis.insights} />
+      <div className="fade-in-up" style={{ animationDelay: '0.5s' }}>
+        <InsightsPanel insights={analysis.insights} />
+      </div>
 
-      <Card>
+      <div className="fade-in-up" style={{ animationDelay: '0.6s' }}>
+        <Card>
         <CardHeader>
           <CardTitle>Plan de Acción Personalizado</CardTitle>
         </CardHeader>
@@ -102,7 +113,8 @@ export const GeneralView: React.FC<GeneralViewProps> = ({ analysis, historicalDa
             </div>
           )}
         </div>
-      </Card>
+        </Card>
+      </div>
     </div>
   );
 };
