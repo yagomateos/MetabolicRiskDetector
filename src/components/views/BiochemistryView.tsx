@@ -7,6 +7,8 @@ interface BiochemistryViewProps {
 }
 
 export const BiochemistryView: React.FC<BiochemistryViewProps> = ({ baseline: currentData }) => {
+  console.log('🔍 BiochemistryView recibiendo currentData:', currentData);
+  
   const getStatus = (value: number, normalRange: {min: number, max: number}) => {
     if (value < normalRange.min) return 'BAJO';
     if (value > normalRange.max) return 'ALTO';

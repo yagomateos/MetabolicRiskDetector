@@ -1,6 +1,6 @@
 import React, { useState, useRef } from 'react';
 import { BloodAnalysis, UploadMode, ExtractedData } from '../../types';
-import { FileText, Smartphone, Upload, Camera } from 'lucide-react';
+import { FileText, Smartphone } from 'lucide-react';
 import { Button } from '../ui/Button.tsx';
 
 interface DataInputFormProps {

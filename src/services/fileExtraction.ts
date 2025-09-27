@@ -2,51 +2,117 @@ import { ExtractedData } from '../types';
 import * as pdfjsLib from 'pdfjs-dist';
 
 // Configurar el worker de PDF.js
-pdfjsLib.GlobalWorkerOptions.workerSrc = `https://unpkg.com/pdfjs-dist@${pdfjsLib.version}/build/pdf.worker.min.js`;
+pdfjsLib.GlobalWorkerOptions.workerSrc = '/pdf.worker.min.js';
 
 // Patrones de reconocimiento específicos para Vall d'Hebron (mejorados)
 const VALL_HEBRON_PATTERNS = {
-  // Hematología - patrones más robustos que manejan flechas y espacios
-  eritrocitos: /Hematies\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*x10E12\/L/i,
-  hemoglobina: /Hemoglobina\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*g\/dL/i,
-  hematocrito: /Hematòcrit\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*%/i,
-  vcm: /Volum corpuscular mig \(VCM\)\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*fL/i,
-  hcm: /Hemoglobina corpuscular mitja \(HCM\)\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*pg/i,
-  ccmh: /Concentració HGB Corpuscular mitja\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*g\/dL/i,
-  rdw: /Ample Distribució Eritrocits \(ADE\)\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*%/i,
-  leucocitos: /Leucòcits\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*x10E9\/L/i,
-  neutrofilos: /Neutròfils %\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*%/i,
-  linfocitos: /Limfòcits %\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*%/i,
-  monocitos: /Monòcits %\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*%/i,
-  eosinofilos: /Eosinòfils %\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*%/i,
-  basofilos: /Basòfils %\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*%/i,
-  plaquetas: /Plaquetes\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*x10E9\/L/i,
+  // Hematología - patrones actualizados para el formato real del PDF
+  eritrocitos: [
+    /Hematies\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*x10E12\/L/i,
+    /Eritròcits-Sang.*?(\d+\.?\d*)\s*\(T\)\s*x10E12\/L/i,
+    /Hematies\s*\.?\s*(\d+\.?\d*)\s*x10E12\/L/i
+  ],
+  hemoglobina: [
+    /Hemoglobina\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*g\/dL/i,
+    /Hemoglobina-Sang.*?(\d+\.?\d*)\s*\(T\)\s*g\/dL/i,
+    /Hemoglobina\s*\.?\s*(\d+\.?\d*)\s*g\/dL/i
+  ],
+  hematocrito: [
+    /Hematòcrit\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*%/i,
+    /Eritròcits \(Hematòcrit\)-Sang.*?(\d+\.?\d*)\s*\(T\)\s*%/i,
+    /Hematòcrit\s*\.?\s*(\d+\.?\d*)\s*%/i
+  ],
+  vcm: [
+    /Volum corpuscular mig \(VCM\)\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*fL/i,
+    /Eritròcits \(VCM\)-Sang.*?(\d+\.?\d*)\s*\(T\)\s*fL/i,
+    /Volum corpuscular mig \(VCM\)\s*\.?\s*(\d+\.?\d*)\s*fL/i
+  ],
+  hcm: [
+    /Hemoglobina corpuscular mitja \(HCM\)\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*pg/i,
+    /Hemoglobina \(HCM\)-Eritròcits.*?(\d+\.?\d*)\s*\(T\)\s*pg/i,
+    /Hemoglobina corpuscular mitja \(HCM\)\s*\.?\s*(\d+\.?\d*)\s*pg/i
+  ],
+  ccmh: [
+    /Concentració HGB Corpuscular mitja\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*g\/dL/i,
+    /Hemoglobina \(CCMH\)-Eritròcits.*?(\d+\.?\d*)\s*\(T\)\s*g\/dL/i
+  ],
+  rdw: [
+    /Ample Distribució Eritrocits \(ADE\)\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*%/i,
+    /Eritròcits \(RDW, ADE\)-Sang.*?(\d+\.?\d*)\s*\(T\)/i
+  ],
+  leucocitos: [
+    /Leucòcits\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*x10E9\/L/i,
+    /Leucòcits-Sang.*?↑\s*(\d+\.?\d*)\s*\(T\)\s*x10E9\/L/i
+  ],
+  neutrofilos: [
+    /Neutròfils %\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*%/i,
+    /Neutròfils;fr\.nom\.-Leucòcits.*?↑\s*(\d+\.?\d*)\s*\(T\)\s*%/i
+  ],
+  linfocitos: [
+    /Limfòcits %\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*%/i,
+    /Limfòcits;fr\.nom\.-Leucòcits.*?(\d+\.?\d*)\s*\(T\)\s*%/i
+  ],
+  monocitos: [
+    /Monòcits %\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*%/i,
+    /Monòcits;fr\.nom\.-Leucòcits.*?(\d+\.?\d*)\s*\(T\)\s*%/i
+  ],
+  eosinofilos: [
+    /Eosinòfils %\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*%/i,
+    /Eosinòfils;fr\.nom\.-Leucòcits.*?(\d+\.?\d*)\s*\(T\)\s*%/i
+  ],
+  basofilos: [
+    /Basòfils %\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*%/i,
+    /Basòfils;fr\.nom\.-Leucòcits.*?(\d+\.?\d*)\s*\(T\)\s*%/i
+  ],
+  plaquetas: [
+    /Plaquetes\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*x10E9\/L/i,
+    /Plaquetes.*?(\d+\.?\d*)\s*\(T\)\s*x10E9\/L/i
+  ],
 
-  // Bioquímica - patrones mejorados para múltiples formatos
+  // Bioquímica - patrones actualizados para el formato real del PDF
   glucosa: [
     /Srm-Glucosa\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*mg\/dL/i,
-    /Glucosa-Sang venosa.*?(?:↑\s*)?(\d+\.?\d*)\s*mg\/dL/i
+    /Glucosa-Sang venosa.*?(?:↑\s*)?(\d+\.?\d*)\s*\(T\)\s*mg\/dL/i,
+    /Srm-Glucosa\s*\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*mg\/dL/i
   ],
   hba1c: /Hb\(San\)-Glicohemoglobina \(A1c\)\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*%/i,
   creatinina: [
     /Srm-Creatinini\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*mg\/dL/i,
-    /Creatinini-Plasma.*?(?:↑\s*)?(\d+\.?\d*)\s*mg\/dL/i
+    /Creatinini-Plasma.*?(?:↑\s*)?(\d+\.?\d*)\s*\(T\)\s*mg\/dL/i,
+    /Srm-Creatinini\s*\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*mg\/dL/i
   ],
-  urea: /Urea-Sang.*?(?:↑\s*)?(\d+\.?\d*)\s*mg\/dL/i,
-  bilirrubina: /Bilirubina-Sang.*?(?:↑\s*)?(\d+\.?\d*)\s*mg\/dL/i,
+  urea: [
+    /Urea-Sang.*?(?:↑\s*)?(\d+\.?\d*)\s*mg\/dL/i,
+    /Urea-Sang.*?(?:↑\s*)?(\d+\.?\d*)\s*\(T\)\s*mg\/dL/i
+  ],
+  bilirrubina: [
+    /Bilirubina-Sang.*?(?:↑\s*)?(\d+\.?\d*)\s*mg\/dL/i,
+    /Bilirubina-Sang.*?(?:↑\s*)?(\d+\.?\d*)\s*\(T\)\s*mg\/dL/i
+  ],
 
-  // Enzimas - patrones mejorados para múltiples formatos
+  // Enzimas - patrones actualizados para el formato real del PDF
   ast: [
     /Srm-Aspartat-aminotransferasa\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*UI\/L/i,
-    /Aspartat-aminotransferasa-Sang.*?(?:↑\s*)?(\d+\.?\d*)\s*UI\/L/i
+    /Aspartat-aminotransferasa-Sang.*?(?:↑\s*)?(\d+\.?\d*)\s*\(T\)\s*UI\/L/i,
+    /Srm-Aspartat-aminotransferasa\s*\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*UI\/L/i
   ],
   alt: [
     /Srm-Alanina-aminotransferasa\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*UI\/L/i,
-    /Alanina-aminotransferasa-Sang.*?(?:↑\s*)?(\d+\.?\d*)\s*UI\/L/i
+    /Alanina-aminotransferasa-Sang.*?(?:↑\s*)?(\d+\.?\d*)\s*\(T\)\s*UI\/L/i,
+    /Srm-Alanina-aminotransferasa\s*\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*UI\/L/i
   ],
-  fosfatasa_alcalina: /Srm-Fosfatasa alcalina\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*UI\/L/i,
-  ggt: /Srm-Gamma-glutamiltransferasa\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*UI\/L/i,
-  amilasa: /Alfa-amilasa-Sang.*?(?:↑\s*)?(\d+\.?\d*)\s*UI\/L/i,
+  fosfatasa_alcalina: [
+    /Srm-Fosfatasa alcalina\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*UI\/L/i,
+    /Fosfatasa alcalina.*?(?:↑\s*)?(\d+\.?\d*)\s*\(T\)\s*UI\/L/i
+  ],
+  ggt: [
+    /Srm-Gamma-glutamiltransferasa\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*UI\/L/i,
+    /Gamma-glutamiltransferasa.*?(?:↑\s*)?(\d+\.?\d*)\s*\(T\)\s*UI\/L/i
+  ],
+  amilasa: [
+    /Alfa-amilasa-Sang.*?(?:↑\s*)?(\d+\.?\d*)\s*UI\/L/i,
+    /Alfa-amilasa-Sang.*?(?:↑\s*)?(\d+\.?\d*)\s*\(T\)\s*UI\/L/i
+  ],
 
   // Lípidos
   colesterol: /Srm-Colesterol\.?\s*(?:↑\s*)?(\d+\.?\d*)\s*mg\/dL/i,
@@ -54,18 +120,51 @@ const VALL_HEBRON_PATTERNS = {
   // Filtrado glomerular
   filtrado_glomerular: /Filtrat glomerular.*?>90\s*ml\/min\/1\.73\s*m2/i,
 
-  // Gases en sangre
-  ph: /pH-Sang venosa.*?(\d+\.?\d*)\s*\(T\)/i,
-  po2: /pO2-Oxigen.*?(\d+\.?\d*)\s*mmHg/i,
-  pco2: /pCO2-Diòxid de carboni.*?(?:↓\s*)?(\d+\.?\d*)\s*mmHg/i,
-  lactato: /Lactat-Sang venosa.*?(\d+\.?\d*)\s*mmol\/L/i,
-  calcio: /Calci iònic-Sang venosa.*?(\d+\.?\d*)\s*mmol\/L/i,
-  sodio: /Sodi-Sang venosa.*?(\d+\.?\d*)\s*mmol\/L/i,
-  potasio: /Potassi-Sang venosa.*?(\d+\.?\d*)\s*mmol\/L/i,
-  hco3: /HCO3-Hidrogencarbonat.*?(\d+\.?\d*)\s*mmol\/L/i,
-  co2_total: /Diòxid de carboni \(total\).*?(\d+\.?\d*)\s*mmol\/L/i,
-  exceso_base: /Excés de base.*?(-?\d+\.?\d*)\s*mmol\/L/i,
-  saturacion_o2: /Saturació d'oxigen.*?(\d+\.?\d*)\s*%/i,
+  // Gases en sangre - patrones actualizados para el formato real del PDF
+  ph: [
+    /pH-Sang venosa.*?(\d+\.?\d*)\s*\(T\)/i,
+    /pH-Sang venosa.*?(\d+\.?\d*)\s*\(T\)/i
+  ],
+  po2: [
+    /pO2-Oxigen.*?(\d+\.?\d*)\s*mmHg/i,
+    /pO2-Oxigen.*?(\d+\.?\d*)\s*\(T\)\s*mmHg/i
+  ],
+  pco2: [
+    /pCO2-Diòxid de carboni.*?(?:↓\s*)?(\d+\.?\d*)\s*mmHg/i,
+    /pCO2-Diòxid de carboni.*?(?:↓\s*)?(\d+\.?\d*)\s*\(T\)\s*mmHg/i
+  ],
+  lactato: [
+    /Lactat-Sang venosa.*?(\d+\.?\d*)\s*mmol\/L/i,
+    /Lactat-Sang venosa.*?(\d+\.?\d*)\s*\(T\)\s*mmol\/L/i
+  ],
+  calcio: [
+    /Calci iònic-Sang venosa.*?(\d+\.?\d*)\s*mmol\/L/i,
+    /Calci iònic-Sang venosa.*?(\d+\.?\d*)\s*\(T\)\s*mmol\/L/i
+  ],
+  sodio: [
+    /Sodi-Sang venosa.*?(\d+\.?\d*)\s*mmol\/L/i,
+    /Sodi-Sang venosa.*?(\d+\.?\d*)\s*\(T\)\s*mmol\/L/i
+  ],
+  potasio: [
+    /Potassi-Sang venosa.*?(\d+\.?\d*)\s*mmol\/L/i,
+    /Potassi-Sang venosa.*?(\d+\.?\d*)\s*\(T\)\s*mmol\/L/i
+  ],
+  hco3: [
+    /HCO3-Hidrogencarbonat.*?(\d+\.?\d*)\s*mmol\/L/i,
+    /HCO3-Hidrogencarbonat.*?(\d+\.?\d*)\s*\(T\)\s*mmol\/L/i
+  ],
+  co2_total: [
+    /Diòxid de carboni \(total\).*?(\d+\.?\d*)\s*mmol\/L/i,
+    /Diòxid de carboni \(total\).*?(\d+\.?\d*)\s*\(T\)\s*mmol\/L/i
+  ],
+  exceso_base: [
+    /Excés de base.*?(-?\d+\.?\d*)\s*mmol\/L/i,
+    /Excés de base.*?(-?\d+\.?\d*)\s*\(T\)\s*mmol\/L/i
+  ],
+  saturacion_o2: [
+    /Saturació d'oxigen.*?(\d+\.?\d*)\s*%/i,
+    /Saturació d'oxigen.*?(\d+\.?\d*)\s*\(T\)\s*%/i
+  ],
 
   // Fecha - múltiples formatos
   fecha: /Recepció:\s*(\d+\/\d+\/\d+)/i
@@ -107,6 +206,7 @@ const extractRealData = (text: string): ExtractedData => {
   
   // Normalizar texto
   const normalizedText = text.replace(/\s+/g, ' ');
+  console.log('🔍 Texto normalizado:', normalizedText.substring(0, 200) + '...');
   
   // Aplicar patrones
   Object.entries(VALL_HEBRON_PATTERNS).forEach(([key, patterns]) => {
@@ -116,6 +216,7 @@ const extractRealData = (text: string): ExtractedData => {
     for (const pattern of patternArray) {
       const match = normalizedText.match(pattern);
       if (match && match[1]) {
+        console.log(`✅ Patrón encontrado para ${key}:`, match[0], '→ valor:', match[1]);
         // Manejo especial para filtrado glomerular
         if (key === 'filtrado_glomerular') {
           extracted[key] = '>90'; // Valor simbólico para >90
@@ -126,6 +227,11 @@ const extractRealData = (text: string): ExtractedData => {
           }
         }
         break; // Usar el primer patrón que coincida
+      } else {
+        // Solo mostrar los primeros 5 patrones que fallan para no saturar la consola
+        if (Object.keys(VALL_HEBRON_PATTERNS).indexOf(key) < 5) {
+          console.log(`❌ Patrón NO encontrado para ${key}:`, pattern.toString());
+        }
       }
     }
   });
@@ -274,16 +380,22 @@ export const extractDataFromFile = async (file: File): Promise<ExtractedData> =>
 
     // Extraer texto real del PDF
     const pdfText = await extractTextFromPDF(file);
+    console.log('📄 Texto completo extraído (primeros 1000 caracteres):', pdfText.substring(0, 1000));
+    console.log('📄 Texto completo extraído (últimos 1000 caracteres):', pdfText.substring(Math.max(0, pdfText.length - 1000)));
     
     // Intentar extraer datos reales del texto
     const realData = extractRealData(pdfText);
+    console.log('🔍 Datos extraídos por patrones:', realData);
     
     // Si encontramos datos reales, usarlos
-    const medicalValuesCount = Object.keys(realData).filter(key => key !== 'fecha').length;
+    const medicalValuesCount = Object.keys(realData).filter(key => key !== 'fecha' && key !== 'confidence').length;
+    console.log(`📊 Valores médicos encontrados: ${medicalValuesCount}`);
+    console.log('📊 Claves encontradas:', Object.keys(realData).filter(key => key !== 'fecha' && key !== 'confidence'));
     
     if (medicalValuesCount > 0) {
       console.log('✅ Datos reales extraídos:', realData);
       console.log(`📊 Encontrados ${medicalValuesCount} valores médicos`);
+      console.log('🎯 RETORNANDO DATOS REALES - NO FICTICIOS');
       return realData;
     }
 
@@ -309,6 +421,7 @@ export const extractDataFromFile = async (file: File): Promise<ExtractedData> =>
       }
     });
 
+    console.log('🔄 RETORNANDO DATOS FICTICIOS:', extracted);
     return extracted;
 
   } catch (error) {
@@ -333,6 +446,7 @@ export const extractDataFromFile = async (file: File): Promise<ExtractedData> =>
       }
     });
 
+    console.log('🔄 RETORNANDO DATOS FICTICIOS (CATCH):', extracted);
     return extracted;
   }
 };

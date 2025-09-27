@@ -76,6 +76,8 @@ export const useMetabolicAnalyzer = () => {
       setCurrentData(newEntry);
       const updatedHistory = [...historicalData, newEntry];
       setHistoricalData(updatedHistory);
+      
+      console.log('🎯 ACTUALIZANDO currentData con datos reales:', newEntry);
 
       // Ejecutar análisis con el historial actualizado
       const result = performAdvancedAnalysis(newEntry, baseline, updatedHistory);

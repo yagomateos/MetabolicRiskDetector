@@ -1,4 +1,4 @@
-import { BloodAnalysis, Analysis, Insight, SystemAlert, Trend } from '../types';
+import { BloodAnalysis, Analysis, Insight, Trend } from '../types';
 
 export const performAdvancedAnalysis = (
   dataToAnalyze: Partial<BloodAnalysis>,
